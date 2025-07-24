@@ -20,11 +20,12 @@ class Controller {
                 error: "Não há usuário."
             }
         } else {
-            return foundUser;
+            return foundUser.toJSON();
         }
     }
 
-    async register(name, email, password, token = null){
+    async register(name, email, password,phone, token = null){
+
         if (email != null) {
             let data = await User.findOne({ where: { email: email } });
             if(data != null){
@@ -45,6 +46,7 @@ class Controller {
         const data = await User.create({
             name: name ?? null,
             email: email ?? null,
+            phone: phone,
             password: hash,
             token: userToken,
             status: true
@@ -60,6 +62,11 @@ class Controller {
             });
         }
 
+        // Remover o campo password do objeto retornado
+        if (data && data.dataValues) {
+            delete data.dataValues.password;
+        }
+
         return data;
     }
 
@@ -71,16 +78,9 @@ class Controller {
                 error: "Não há usuário."
             }
         } else {
-
-            //criando o JWT...
-            let encodedJwt = jwt.sign({
-                data: foundUser
-            }, process.env.JWT_SECRET, { expiresIn: '45h' });
-
-            return {
-                ...foundUser,
-                encodedJwt
-            };
+            
+            return foundUser.toJSON();
+            
         }
     }
 
@@ -97,12 +97,18 @@ class Controller {
         }
         
         if(bcrypt.compareSync(password, foundUser.password) == true){
+
+            //deletar o password do obj para retornar...
+            delete foundUser.dataValues.password;
+
+            //criando o JWT...
             let encodedJwt = jwt.sign({
-                data: foundUser
+                data: foundUser,
+                scope: ["read:foo", "write:foo", /* "delete:foo", */ "update:foo"]
             }, process.env.JWT_SECRET, { expiresIn: '45h' });
 
             return {
-                ...foundUser,
+                ...foundUser.toJSON(),
                 encodedJwt
             };
 
@@ -113,7 +119,7 @@ class Controller {
         }
     }
 
-    async update(userId, name, email){
+    async   update(userId, name, phone){
         const foundUser = await User.findOne({ where: { id: userId } });
 
         if(foundUser == null){
@@ -124,12 +130,12 @@ class Controller {
 
         await foundUser.update({            
             name: name,
-            email: email
+            phone: phone
         });
 
         await foundUser.save();
 
-        return foundUser;
+        return foundUser.toJSON();
     }
 
     async delete(userId){
@@ -156,7 +162,7 @@ class Controller {
                 error: "Não há usuário."
             }
         } else {
-            return foundUser;
+            return foundUser.toJSON();
         }
 
     }
@@ -206,18 +212,7 @@ class Controller {
     }
 
     //mudar senha com codigo personalAccessToken
-    async changePassword(userId, oldPassword, newPassword, code, secret) {
-
-        const user = await User.findOne({
-            where: { id: userId },
-            attributes: { include: ['password'] }
-        });
-
-        if(user == null){
-            return {
-                "error": "Usuário não existe."
-            };
-        }
+    async changePassword(oldPassword, newPassword, code, secret) {
 
         const personalAT = await PersonalAccessTokenController.verifyByCode(code);
 
@@ -230,6 +225,17 @@ class Controller {
             return {
                 error: "Falha na validação de segurança. (SCRT)"
             }
+        }
+
+        const user = await User.findOne({
+            where: { id: personalAT.tokenable_id },
+            attributes: { include: ['password'] }
+        });
+
+        if(user == null){
+            return {
+                "error": "Usuário não existe."
+            };
         }
 
         if(bcrypt.compareSync(oldPassword, user.password) == true){
@@ -258,6 +264,80 @@ class Controller {
 
     }
 
+    // envia email com código para mudança de email
+    async sendChangeEmailCode(userId, newEmail) {
+        const user = await User.findOne({ where: { id: userId } });
+
+        if (!user) {
+            return { error: "Usuário não existe." };
+        }
+
+        // Verifica se o novo email já está em uso
+        const emailExists = await User.findOne({ where: { email: newEmail } });
+        if (emailExists) {
+            return { error: "Este email já está em uso." };
+        }
+
+        const generatedCode = Util.generateCode(5);
+        const secretWord = uuidv4();
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1hr
+
+        await PersonalAccessTokenController.register(
+            "change_email",
+            user.id,
+            newEmail,
+            secretWord,
+            generatedCode,
+            null,
+            Date.now(),
+            expiresAt
+        );
+
+        const templateFilePath = path.join(Util.getTemplatePath(import.meta.url), '../mail/template/changeEmail.html');
+        fs.readFile(templateFilePath, 'utf8', (err, content) => {
+            if (err) throw err;
+            let plainHTML = content.toString().replaceAll("{name}", user.name).replaceAll("{host}", process.env.SPA_APPLICATION_URL).replaceAll("{email}", newEmail).replaceAll("{code}", generatedCode).replaceAll("{secret}", secretWord);
+            mail.sendEmail(newEmail, user.name, "Confirmação de Mudança de Email, Company", plainHTML);
+        });
+
+        return { message: "O código de confirmação foi enviado ao novo e-mail com sucesso." };
+    }
+
+    // altera o email do usuário após validação
+    async changeEmail(email, code, secret) {
+
+        const personalAT = await PersonalAccessTokenController.verifyByCode(code);
+
+        if (personalAT.error) {
+            return personalAT;
+        }
+
+        if (personalAT.secret !== secret) {
+            return { error: "Falha na validação de segurança. (SCRT)" };
+        }
+
+        const user = await User.findOne({ where: { id: personalAT.tokenable_id } });
+
+        if (!user) {
+            return { error: "Usuário não existe." };
+        }
+
+        const newEmail = email;
+
+        // Verifica se o novo email já está em uso
+        const emailExists = await User.findOne({ where: { email: newEmail } });
+        if (emailExists) {
+            return { error: "Este email já está em uso." };
+        }
+
+        await user.update({ email: newEmail });
+        await user.save();
+
+        await PersonalAccessTokenController.deleteAllRelated(user.id);
+
+        return { message: "Email alterado com sucesso." };
+    }
+
     async toggleStatus(userId) {
         const foundUser = await User.findOne({ where: { id: userId } });
 
@@ -267,12 +347,12 @@ class Controller {
             }
         }
 
-        let saoPauloDate = Util.currentDateTime('America/Sao_Paulo');
+        let myTimezoneDate = Util.currentDateTime('America/Sao_Paulo');
         const newStatus = !foundUser.status;
 
         await foundUser.update({
             status: newStatus,
-            updatedAt: saoPauloDate
+            updatedAt: myTimezoneDate
         });
 
         return {

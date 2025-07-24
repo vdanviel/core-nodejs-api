@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { databaseInstance } from "../connection/database.js";
-import { user } from "./user.js";
+import { User } from "./user.js";
 
 class personalAccessTokenModel {
     constructor() {
@@ -14,7 +14,7 @@ class personalAccessTokenModel {
                 },
                 tokenable_type: DataTypes.STRING,//o tipo de token que esta transicionando
                 tokenable_id: DataTypes.INTEGER,//o user ou objeto associado a esse token
-                name: DataTypes.TEXT,//o nome do token
+                name: DataTypes.TEXT,//o nome do usuario ou objeto que esta pedindo o token da sua preferência, pode ser usado para tranferir identificadores alem de id
                 secret: DataTypes.STRING,//codigo secreto para verifição de segurança
                 token: {//o token
                     type: DataTypes.TEXT,
@@ -32,9 +32,11 @@ class personalAccessTokenModel {
                 tableName: 'personal_access_token'
             }
         );
+
     }
 
     getModel(){
+        
         return databaseInstance.models.personal_access_token;
     }
 

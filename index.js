@@ -28,12 +28,13 @@ var corsOptions = {
   credentials: true
 }
 
+//recupera todas as rotas da versão da API...
 app.use("/v1", cors(corsOptions), version1Router);
 
 //main
 app.get('/', (req, res) => {
 
-  return res.send("API V1 VivaTshirt");
+  return res.send("API V1 Core Node.js API");
 
 });
 

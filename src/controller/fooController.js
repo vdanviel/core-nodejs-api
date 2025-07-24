@@ -32,7 +32,7 @@ class Controller {
         return data;
     }
 
-    async update(fooId, name, description, value, status) {
+    async update(fooId, name, description, value) {
         const foundedFoo = await Foo.findOne({where: {id: fooId}});
 
         if (foundedFoo == null) {
@@ -42,14 +42,13 @@ class Controller {
         }
 
         //libera a data em yyyy-mm-dd hh:ss
-        let saoPauloDate = Util.currentDateTime('America/Sao_Paulo');
+        let myTimezoneDate = Util.currentDateTime('America/Sao_Paulo');
 
         await foundedFoo.update({
             name: name,
             description: description,
             value: value,
-            status: status,
-            updatedAt: saoPauloDate
+            updatedAt: myTimezoneDate
         });
 
         await foundedFoo.save();
@@ -67,14 +66,14 @@ class Controller {
         }
 
         //libera a data em yyyy-mm-dd hh:ss
-        let saoPauloDate = Util.currentDateTime('America/Sao_Paulo');
+        let myTimezoneDate = Util.currentDateTime('America/Sao_Paulo');
 
         // Toggle status
         const newStatus = !foundedFoo.status;
 
         await foundedFoo.update({
             status: newStatus,
-            updatedAt: saoPauloDate
+            updatedAt: myTimezoneDate
         });
 
         return {

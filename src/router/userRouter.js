@@ -1,29 +1,33 @@
 import express from "express";
-import { verifyJwt } from "../middleware/auth.js";
+import { isAuth } from "../middleware/auth.js";
+import { checkScope } from "../middleware/scope.js";
 import { body, validationResult, param } from "express-validator";
 import { UserController } from "../controller/userController.js";
+import { FooController } from "../controller/fooController.js";
 
 const userRouter = express.Router();
 
-userRouter.get('/:id', verifyJwt, (req, res) => {
-    
-    UserController.find(req.params.id)
-    .then(user => {       
+userRouter.get('/me', isAuth, (req, res) => {
+
+    UserController.find(req.user.data.id)
+    .then(user => {
+
         return res.send(user);
+
     })
     .catch(error => {
         return res.status(500).send({ 
-            error: error.message,
-            trace: error.stack
+            error: error.message
         });
     });
 
 });
 
 userRouter.post('/register', [
-        body('email').exists().withMessage("Email é obrigatório.").notEmpty().withMessage("Email Inválido.").notEmpty().withMessage("Preencha o email."),
+        body('name').exists().withMessage("Nome é obrigatório.").notEmpty().withMessage("Preencha o nome."),
+        body('email').exists().withMessage("Email é obrigatório.").isEmail().withMessage("Email Inválido.").notEmpty().withMessage("Preencha o email."),
+        body('phone').exists().withMessage("Celular é obrigatório.").isMobilePhone('pt-BR').withMessage("Número celular inválido.").notEmpty().withMessage("Preencha o celular."),
         body('password').exists().withMessage("Senha é obrigatória.").notEmpty().withMessage("Preencha a senha."),
-        body('name').exists().withMessage("Nome é obrigatório.").notEmpty().withMessage("Preencha o nome.")
     ], (req, res) => {
     
         const validate = validationResult(req);
@@ -34,14 +38,13 @@ userRouter.post('/register', [
             });
         }
         
-        UserController.register(req.body.name, req.body.email, req.body.password)
+        UserController.register(req.body.name, req.body.email, req.body.password,req.body.phone)
         .then(register => {
             return res.send(register);
         })
         .catch(error => {
             return res.status(500).send({ 
-                error: error.message,
-                trace: error.stack
+                error: error.message
             });
         });
 
@@ -63,18 +66,16 @@ userRouter.post('/login', [
             return res.send(login);
         }).catch(error => {
             return res.status(500).send({ 
-                error: error.message,
-                trace: error.stack
+                error: error.message
             });
         });
 
 });
 
-userRouter.put('/update/:id', [
-        param('id').exists().withMessage("O ID do usuário é obrigatório.").notEmpty().withMessage("Preencha o ID do usuário."),
-        body('email').exists().withMessage("Email é obrigatório.").notEmpty().withMessage("Email Inválido.").notEmpty().withMessage("Preencha o email."),
-        body('name').exists().withMessage("Nome é obrigatório.").notEmpty().withMessage("Preencha o nome.")
-], verifyJwt, (req, res) => {
+userRouter.put('/update', [
+    body('name').exists().withMessage("Nome é obrigatório.").notEmpty().withMessage("Preencha o nome."),
+    body('phone').exists().withMessage("Celular é obrigatório.").isMobilePhone('pt-BR').withMessage("Número celular inválido.").notEmpty().withMessage("Preencha o celular."),
+], isAuth, (req, res) => {
 
         const validate = validationResult(req);
 
@@ -84,13 +85,12 @@ userRouter.put('/update/:id', [
             });
         }
 
-        UserController.update(req.params.id, req.body.name, req.body.email)
+        UserController.update(req.user.data.id, req.body.name, req.body.phone)
         .then(user => {
             return res.send(user);
         }).catch(error => {
             return res.status(500).send({ 
-                error: error.message,
-                trace: error.stack
+                error: error.message
             });
         });
 
@@ -98,7 +98,7 @@ userRouter.put('/update/:id', [
 
 // userRouter.delete('/delete/:id', [
 //         param('id').exists().withMessage("O ID do usuário é obrigatório.").notEmpty().withMessage("Preencha o ID do usuário.")
-//     ], verifyJwt, (req, res) => {
+//     ], isAuth, (req, res) => {
 
 //         UserController.delete(req.params.id)
 //         .then(user => {
@@ -106,39 +106,41 @@ userRouter.put('/update/:id', [
 //         }).catch(error => {
 //             return res.status(500).send({ 
 //                 error: error.message,
-//                 trace: error.stack
-//             });
+//  //             });
 //         });
 
 // });
 
-//atualiza a  senha do usuário usando o codigo
-userRouter.patch('/update-password/:id', [
-        param('id').exists().withMessage("O ID do usuário é obrigatório.").notEmpty().withMessage("Preencha o ID do usuário."),
-        body('token').exists().withMessage("Token field is missed.").notEmpty().withMessage("Fill security token field."),
-        body('old_password').exists().withMessage("Senha antiga é obrigatória.").notEmpty().withMessage("Preencha a senha antiga."),
-        body('new_password').exists().withMessage("Nova senha é obrigatória.").notEmpty().withMessage("Preencha a nova senha."),
-        body('secret').exists().withMessage("Nova senha é obrigatória.").notEmpty().withMessage("Preencha a nova senha.")
-    ], verifyJwt, (req, res) => {
+// Envia código para mudança de email
+userRouter.post('/change-email/mail', [
+    body('new_email').exists().withMessage("Novo email é obrigatório.").isEmail().withMessage("Email inválido.").notEmpty().withMessage("Preencha o novo email."),
+], isAuth, (req, res) => {
+    const validate = validationResult(req);
 
-        const validate = validationResult(req);
+    if (!validate.isEmpty()) {
+        return res.send({ missing: validate.array() });
+    }
 
-        if (validate.isEmpty() == false) {
-            return res.send({
-                missing: validate.array()
-            });
-        }
+    UserController.sendChangeEmailCode(req.user.data.id, req.body.new_email)
+    .then(result => {return res.send(result)})
+    .catch(error => {return res.status(500).send({ error: error.message })});
+});
 
-        UserController.changePassword(req.params.id, req.body.old_password, req.body.new_password, req.body.token, req.body.secret)
-        .then(user => {
-            return res.send(user);
-        }).catch(error => {
-            return res.status(500).send({ 
-                error: error.message,
-                trace: error.stack
-            });
-        });
+// Altera o email do usuário após validação
+userRouter.patch('/change-email', [
+    body('code').exists().withMessage("Código é obrigatório.").notEmpty().withMessage("Preencha o código."),
+    body('secret').exists().withMessage("Secret é obrigatório.").notEmpty().withMessage("Preencha o secret."),
+    body('new_email').exists().withMessage("Novo email é obrigatório.").isEmail().withMessage("Email inválido.").notEmpty().withMessage("Preencha o novo email."),
+], (req, res) => {
+    const validate = validationResult(req);
 
+    if (!validate.isEmpty()) {
+        return res.send({ missing: validate.array() });
+    }
+
+    UserController.changeEmail(req.body.new_email, req.body.code, req.body.secret)
+    .then(result => {return res.send(result)})
+    .catch(error => {return res.status(500).send({ error: error.message })});
 });
 
 //envia email de recuperação de senha
@@ -160,16 +162,42 @@ userRouter.post('/forgot-password/mail', [
 
     }).catch(error => {
         return res.status(500).send({ 
-            error: error.message,
-            trace: error.stack
+            error: error.message
         });
     });
 
 });
 
-//acha o usuário pelo token
-userRouter.get('/token/:tokenCode', [
-    param('tokenCode').exists().withMessage("O token do usuário é obrigatório.").notEmpty().withMessage("Preencha o token do usuário.")
+//atualiza a  senha do usuário usando o codigo
+userRouter.patch('/update-password/', [
+        body('code').exists().withMessage("Code field is missed.").notEmpty().withMessage("Fill security code field."),
+        body('old_password').exists().withMessage("Senha antiga é obrigatória.").notEmpty().withMessage("Preencha a senha antiga."),
+        body('new_password').exists().withMessage("Nova senha é obrigatória.").notEmpty().withMessage("Preencha a nova senha."),
+        body('secret').exists().withMessage("Nova senha é obrigatória.").notEmpty().withMessage("Preencha a nova senha.")
+    ], (req, res) => {
+
+        const validate = validationResult(req);
+
+        if (validate.isEmpty() == false) {
+            return res.send({
+                missing: validate.array()
+            });
+        }
+
+        UserController.changePassword(req.body.old_password, req.body.new_password, req.body.code, req.body.secret)
+        .then(user => {
+            return res.send(user);
+        }).catch(error => {
+            return res.status(500).send({ 
+                error: error.message,
+            });
+        });
+
+});
+
+//acha o usuário pelo token dele
+userRouter.get('/token/:token', [
+    param('token').exists().withMessage("O token do usuário é obrigatório.").notEmpty().withMessage("Preencha o token do usuário.")
 ], (req, res) => {
 
     const validate = validationResult(req);
@@ -180,21 +208,18 @@ userRouter.get('/token/:tokenCode', [
         });
     }
 
-    UserController.findUserByToken(req.params.tokenCode).then((user) => {
+    UserController.findUserByToken(req.params.token).then((user) => {
         res.send(user);
     }).catch(error => {
         return res.status(500).send({ 
-            error: error.message,
-            trace: error.stack
+            error: error.message
         });
     });
 
 });
 
 //ativa/desativa usuario
-userRouter.patch('/status/:id', [
-    param('id').exists().withMessage("ID inválido.").notEmpty().withMessage("ID inválido."),
-], verifyJwt, (req, res) => {
+userRouter.patch('/toogle-status', isAuth, (req, res) => {
     const validate = validationResult(req);
 
     if (!validate.isEmpty()) {
@@ -203,17 +228,14 @@ userRouter.patch('/status/:id', [
         });
     }
 
-    UserController.toggleStatus(req.params.id)
+    UserController.toggleStatus(req.user.data.id)
     .then(result => {
         return res.send(result);
     }).catch(error => {
         return res.status(500).send({ 
-            error: error.message,
-            trace: error.stack
+            error: error.message
         });
     });
 });
-
-
 
 export {userRouter};

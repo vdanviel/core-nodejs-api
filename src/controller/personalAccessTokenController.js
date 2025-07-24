@@ -45,6 +45,32 @@ class Controller {
         }
     }
 
+    async verifyBySecret(secret){
+
+        const personalAT = await personalAccessToken.findOne({
+            where: {
+                secret: secret
+            }
+        });
+
+        if (personalAT == null) {
+            return {
+                error: "Código de recuperação é inválido."
+            }
+        }
+
+        const tokenExpiresAtTime = new Date(personalAT.expires_at);
+        const currentTime = new Date();
+
+        if (currentTime.getTime() > tokenExpiresAtTime.getTime()) {
+            return {
+                error: "Código de recuperação expirado."
+            }
+        } else {
+            return personalAT;
+        }
+    }
+
     async deleteAllRelated(customerId) {
         const personalAT = await personalAccessToken.findAll({
             where: {
