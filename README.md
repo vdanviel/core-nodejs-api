@@ -224,7 +224,7 @@ export {fooRouter};
 
 ## Como a API é versionada em RESTFULL:
 
-O framework versiona a API em `src/router/version/'`, lá é criado os arquivos das versões exemplo `version1Router.js` e dentro desse arquivo router todos os outro arquivos router ficam e ele é chamado em index.js (arquivo do servidor).
+O framework versiona a API em `src/router/version/`, lá é criado os arquivos das versões exemplo `version1Router.js` e dentro desse arquivo router todos os outro arquivos router ficam e ele é chamado em index.js (arquivo do servidor).
 
 ```javascript
 //src/router/version/version1Router.js...
@@ -482,3 +482,4 @@ Assim que o projeto for iniciado ele vai criar o **banco de dados** automaticame
 - Integrações
 - SOLID
 - camelCase
+
