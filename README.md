@@ -221,6 +221,24 @@ fooRouter.put('/update/:id', [
 export {fooRouter};
 
 ```
+## Corenode, a solução CLI para automatizar tarefas
+
+O `corenode` é um CLI feito com `commander.js` utilizado para criar elementos dentro do ecosistema do projeto.
+
+O comando base para uso é:
+
+```plaintext
+npm run corenode
+```
+
+### Resumo Rápido dos Comandos
+
+| Comando                                   | Descrição                  | Exemplo                                           |
+|-------------------------------------------|----------------------------|---------------------------------------------------|
+| `generate:module <name>`                  | Cria um novo módulo        | `npm run corenode generate:module User`           |
+| `generate:module <name> --mode complete`  | Cria um módulo completo    | `npm run corenode generate:module Auth --mode complete` |
+| `remove:module <name>`                    | Remove um módulo existente | `npm run corenode remove:module User`             |
+| `list:module`                             | Lista módulos disponíveis  | `npm run corenode list:module`                    |
 
 ## Como a API é versionada em RESTFULL:
 
@@ -476,7 +494,7 @@ Assim que o projeto for iniciado ele vai criar o **banco de dados** automaticame
 - **uuid**: Geração de UUIDs (identificadores únicos universais).
 
 ## Convenções do projeto:
-- MVC (Representado como Model/Controller/View)
+- MVC (Representado como Model/Controller/Router)
 - JWT
 - Autenticação / Autorização por escopo
 - Integrações
