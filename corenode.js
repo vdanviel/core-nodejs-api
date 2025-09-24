@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+// ferramenta command line para gerar arquitetura de modulos de forma automatica e mais
+
 import { ModuleGenerator } from "./src/command/generator/moduleGenerator.js";
 import { Command } from "commander";
 
