@@ -21,18 +21,17 @@ class Controller {
         }
     }
 
-    async register(name, description, value){
+    async register(value1, value2, value3) {
         const data = await __TitleModuleName__.create({
-            name: name,
-            description: description,
-            value: value,
-            status: true
+            value_1: value1,
+            value_2: value2,
+            value_3: value3
         });
 
         return data;
     }
 
-    async update(__ModuleName__Id, name, description, value) {
+    async update(__ModuleName__Id, value1, value2, value3) {
         const founded__TitleModuleName__ = await __TitleModuleName__.findOne({where: {id: __ModuleName__Id}});
 
         if (founded__TitleModuleName__ == null) {
@@ -45,9 +44,9 @@ class Controller {
         let myTimezoneDate = Util.currentDateTime('America/Sao_Paulo');
 
         await founded__TitleModuleName__.update({
-            name: name,
-            description: description,
-            value: value,
+            value_1: value1,
+            value_2: value2,
+            value_3: value3,
             updatedAt: myTimezoneDate
         });
 
