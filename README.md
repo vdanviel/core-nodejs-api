@@ -230,15 +230,21 @@ O comando base para uso é:
 ```plaintext
 npm run corenode
 ```
+### Geração de módulos (module)
 
-### Resumo Rápido dos Comandos
+Um módulo reúne os elementos principais do padrão MVC: **Model**, **Controller** e **Router**.  
+Com os comandos `ação:module`, é possível gerenciar automaticamente toda a estrutura de um módulo, acelerando o desenvolvimento e eliminando etapas repetitivas.
 
-| Comando                                   | Descrição                  | Exemplo                                           |
-|-------------------------------------------|----------------------------|---------------------------------------------------|
-| `generate:module <name>`                  | Cria um novo módulo        | `npm run corenode generate:module User`           |
-| `generate:module <name> --mode complete`  | Cria um módulo completo    | `npm run corenode generate:module Auth --mode complete` |
-| `remove:module <name>`                    | Remove um módulo existente | `npm run corenode remove:module User`             |
-| `list:module`                             | Lista módulos disponíveis  | `npm run corenode list:module`                    |
+---
+
+#### Comandos Disponíveis
+
+| Comando                                  | Descrição                        | Exemplo                                                  |
+|------------------------------------------|----------------------------------|----------------------------------------------------------|
+| `generate:module <name>`                 | Cria um novo módulo básico        | `npm run corenode generate:module user`                  |
+| `generate:module <name> --mode complete` | Cria um módulo completo (MVC)     | `npm run corenode generate:module auth --mode complete`  |
+| `remove:module <name>`                   | Remove um módulo existente        | `npm run corenode remove:module user`                    |
+| `list:module`                            | Lista todos os módulos criados    | `npm run corenode list:module`                           |
 
 ## Como a API é versionada em RESTFULL:
 
@@ -478,20 +484,6 @@ SPA_APPLICATION_URL=
 
 Assim que o projeto for iniciado ele vai criar o **banco de dados** automaticamente.
 
-### Dependências do Projeto:
-- **sequelize**: ORM para banco de dados SQL.
-- **express**: Framework web para criar servidores HTTP e APIs.
-- **dotenv**: Carrega variáveis de ambiente do arquivo `.env`.
-- **cors**: Middleware para habilitar o compartilhamento de recursos entre origens (CORS).
-- **bcryptjs**: Biblioteca para hashing de senhas com bcrypt.
-- **express-session**: Middleware para gerenciamento de sessões.
-- **express-validator**: Middleware para validação e sanitização de dados da requisição.
-- **googleapis**: Biblioteca oficial para interagir com APIs do Google.
-- **jsonwebtoken**: Biblioteca para criação e verificação de tokens JWT.
-- **mysql2**: Driver moderno e performático para MySQL, compatível com Sequelize.
-- **nodemailer**: Biblioteca para envio de e-mails.
-- **sqlite3**: Driver para banco de dados SQLite.
-- **uuid**: Geração de UUIDs (identificadores únicos universais).
 
 ## Convenções do projeto:
 - MVC (Representado como Model/Controller/Router)
