@@ -1,0 +1,13 @@
+import express from "express";
+
+import { isAuth } from "../middleware/auth.js"; //para verificar se jwt é presente e válido...
+import { checkScope } from "../middleware/scope.js"; //para verificar se o escopo do token jwt permite acessar a rota...
+import { body, param, validationResult } from "express-validator"; // para validar os dados de entrada...
+
+import { __TitleModuleName__Controller } from "../controller/__ModuleName__Controller.js";
+
+const __ModuleName__Router = express.Router();
+
+// adicionar suas rotas aqui...
+
+export {__ModuleName__Router};

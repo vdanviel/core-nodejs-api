@@ -1,10 +1,11 @@
 {
-  "name": "vivatshirt_api",
+  "name": "core-node-js-api",
   "version": "1.0.0",
-  "description": "main private webservice of VivaTShirt e-ccomerce",
+  "description": "core node js api",
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "corenode": "node ./corenode.js",
     "dev": "nodemon ./index.js",
     "test": "echo 'testing'"
   },
@@ -20,6 +21,7 @@
   "homepage": "https://github.com/VivaTShirt/api#readme",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "commander": "^14.0.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.5.0",

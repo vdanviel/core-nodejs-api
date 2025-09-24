@@ -2,8 +2,6 @@ import { User } from "../model/user.js";
 import { sender as mailSender } from "../mail/sender.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import fs from "node:fs";
-import path from "node:path";
 import Util from '../util/util.js';
 import { v4 as uuidv4 } from 'uuid';
 import { PersonalAccessTokenController } from "./personalAccessTokenController.js";
@@ -188,10 +186,6 @@ class Controller {
         //registrar codigo no db..
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000);//1hr ele expira
         await PersonalAccessTokenController.register("forgot_password", user.id, user.name, secretWord, generatedCode, null, Date.now(), expiresAt);
-
-        //enviar email com codigo...
-        //recupera o caminho do template do email html...
-        const templateFilePath = path.join(Util.getTemplatePath(import.meta.url), '../mail/template/forgotPassword.html');
 
         // Envia email de recuperação de senha se foi fornecido email
         if (email) {

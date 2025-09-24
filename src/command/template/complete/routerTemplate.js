@@ -1,17 +1,19 @@
 import express from "express";
-import { isAuth } from "../middleware/auth.js";
-import { checkScope } from "../middleware/scope.js";
-import { body, param, validationResult } from "express-validator";
-import { FooController } from "../controller/fooController.js";
 
-const fooRouter = express.Router();
+import { isAuth } from "../middleware/auth.js"; //para verificar se jwt é presente e válido...
+import { checkScope } from "../middleware/scope.js"; //para verificar se o escopo do token jwt permite acessar a rota...
+import { body, param, validationResult } from "express-validator"; // para validar os dados de entrada...
 
-//listar o foo
-fooRouter.get('/', [isAuth, checkScope('read:foo')], (req, res) => {
+import { __TitleModuleName__Controller } from "../controller/__ModuleName__Controller.js";
 
-    FooController.findAll()
-    .then((foos) => {
-        return res.send(foos);
+const __ModuleName__Router = express.Router();
+
+//listar o __ModuleName__
+__ModuleName__Router.get('/', [isAuth, checkScope('read:__ModuleName__')], (req, res) => {
+
+    __TitleModuleName__Controller.findAll()
+    .then((__ModuleName__s) => {
+        return res.send(__ModuleName__s);
     })
     .catch(error => {
         return res.status(500).send({ 
@@ -21,9 +23,9 @@ fooRouter.get('/', [isAuth, checkScope('read:foo')], (req, res) => {
 
 });
 
-fooRouter.get('/find/:id',[
+__ModuleName__Router.get('/find/:id',[
     param('id').exists().withMessage("ID inválido.").notEmpty().withMessage("ID inválido."),
-], [isAuth, checkScope('read:foo')], (req, res) => {
+], [isAuth, checkScope('read:__ModuleName__')], (req, res) => {
 
     const validate = validationResult(req);
 
@@ -33,9 +35,9 @@ fooRouter.get('/find/:id',[
         });
     }
 
-    FooController.find(req.params.id)
-    .then(foo => {       
-        return res.send(foo);
+    __TitleModuleName__Controller.find(req.params.id)
+    .then(__ModuleName__ => {       
+        return res.send(__ModuleName__);
     }).catch(error => {
         return res.status(500).send({ 
             error: error.message,
@@ -45,12 +47,12 @@ fooRouter.get('/find/:id',[
 
 });
 
-//registra o foo
-fooRouter.post('/register', [
+//registra o __ModuleName__
+__ModuleName__Router.post('/register', [
     body('name').exists().withMessage("Nome é obrigatório.").notEmpty().withMessage("Nome não pode estar vazio."),
     body('description').exists().withMessage("Descrição é obrigatória.").notEmpty().withMessage("Descrição não pode estar vazia."),
     body('value').exists().withMessage("Valor é obrigatório.").notEmpty().withMessage("Valor não pode estar vazio.")
-], [isAuth, checkScope('write:foo')], (req, res) => {
+], [isAuth, checkScope('write:__ModuleName__')], (req, res) => {
 
     const validate = validationResult(req);
 
@@ -60,9 +62,9 @@ fooRouter.post('/register', [
         });
     }
 
-    FooController.register(req.body.name,req.body.description,req.body.value)
-    .then((foo) => {
-        return res.send(foo);
+    __TitleModuleName__Controller.register(req.body.name,req.body.description,req.body.value)
+    .then((__ModuleName__) => {
+        return res.send(__ModuleName__);
     })
     .catch(error => {
         return res.status(500).send({ 
@@ -72,12 +74,12 @@ fooRouter.post('/register', [
 
 });
 
-fooRouter.put('/update/:id', [
+__ModuleName__Router.put('/update/:id', [
     param('id').exists().withMessage("ID inválido.").notEmpty().withMessage("ID inválido."),
     body('name').exists().withMessage("Nome é obrigatório.").notEmpty().withMessage("Preencha o nome."),
     body('description').exists().withMessage("Descrição é obrigatória.").notEmpty().withMessage("Preencha a descrição."),
     body('value').exists().withMessage("Valor é obrigatório.").notEmpty().withMessage("Preencha o valor.")
-], [isAuth, checkScope('update:foo')], (req, res) => {
+], [isAuth, checkScope('update:__ModuleName__')], (req, res) => {
 
     const validate = validationResult(req);
 
@@ -87,9 +89,9 @@ fooRouter.put('/update/:id', [
         });
     }
 
-    FooController.update(req.params.id, req.body.name, req.body.description, req.body.value)
-    .then(foo => {
-        return res.status(200).send(foo);
+    __TitleModuleName__Controller.update(req.params.id, req.body.name, req.body.description, req.body.value)
+    .then(__ModuleName__ => {
+        return res.status(200).send(__ModuleName__);
     }).catch(error => {
         return res.status(500).send({ 
             error: error.message,
@@ -98,9 +100,9 @@ fooRouter.put('/update/:id', [
     });
 });
 
-fooRouter.delete('/delete/:id', [
+__ModuleName__Router.delete('/delete/:id', [
     param('id').exists().withMessage("ID inválido.").notEmpty().withMessage("ID inválido."),
-], [isAuth, checkScope('delete:foo')], (req, res) => {
+], [isAuth, checkScope('delete:__ModuleName__')], (req, res) => {
 
     const validate = validationResult(req);
 
@@ -110,9 +112,9 @@ fooRouter.delete('/delete/:id', [
         });
     }
 
-    FooController.delete(req.params.id)
-    .then((foo) => {
-        return res.status(200).send(foo);
+    __TitleModuleName__Controller.delete(req.params.id)
+    .then((__ModuleName__) => {
+        return res.status(200).send(__ModuleName__);
     }).catch(error => {
         return res.status(500).send({ 
             error: error.message,
@@ -122,9 +124,9 @@ fooRouter.delete('/delete/:id', [
 });
 
 // Toggle status
-fooRouter.patch('/toggle-status/:id', [
+__ModuleName__Router.patch('/toggle-status/:id', [
     param('id').exists().withMessage("ID inválido.").notEmpty().withMessage("ID inválido."),
-], [isAuth, checkScope('update:foo')], (req, res) => {
+], [isAuth, checkScope('update:__ModuleName__')], (req, res) => {
     
     const validate = validationResult(req);
 
@@ -134,7 +136,7 @@ fooRouter.patch('/toggle-status/:id', [
         });
     }
 
-    FooController.toggleStatus(req.params.id)
+    __TitleModuleName__Controller.toggleStatus(req.params.id)
     .then(result => {
         return res.send(result);
     }).catch(error => {
@@ -145,4 +147,4 @@ fooRouter.patch('/toggle-status/:id', [
     });
 });
 
-export {fooRouter};
+export {__ModuleName__Router};

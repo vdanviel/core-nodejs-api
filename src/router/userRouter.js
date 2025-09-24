@@ -9,7 +9,7 @@ const userRouter = express.Router();
 
 userRouter.get('/me', isAuth, (req, res) => {
 
-    UserController.find(req.user.data.id)
+    UserController.find(req.auth.data.id)
     .then(user => {
 
         return res.send(user);
@@ -85,7 +85,7 @@ userRouter.put('/update', [
             });
         }
 
-        UserController.update(req.user.data.id, req.body.name, req.body.phone)
+        UserController.update(req.auth.data.id, req.body.name, req.body.phone)
         .then(user => {
             return res.send(user);
         }).catch(error => {
@@ -121,7 +121,7 @@ userRouter.post('/change-email/mail', [
         return res.send({ missing: validate.array() });
     }
 
-    UserController.sendChangeEmailCode(req.user.data.id, req.body.new_email)
+    UserController.sendChangeEmailCode(req.auth.data.id, req.body.new_email)
     .then(result => {return res.send(result)})
     .catch(error => {return res.status(500).send({ error: error.message })});
 });
@@ -228,7 +228,7 @@ userRouter.patch('/toogle-status', isAuth, (req, res) => {
         });
     }
 
-    UserController.toggleStatus(req.user.data.id)
+    UserController.toggleStatus(req.auth.data.id)
     .then(result => {
         return res.send(result);
     }).catch(error => {
