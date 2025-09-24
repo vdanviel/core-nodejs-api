@@ -6,36 +6,50 @@ Ele já vem com o Google como uma integração configurada e assim que o servido
 ### Estrutura do Projeto:
 
 ```plaintext
-├── index.js // Arquivo de boot que inicia o servidor
-├── package-lock.json
-├── package.json
-└── src // Diretório principal da estrutura da aplicação
-    ├── connection // Diretório conexões. Podem ser externas (integrações) ou o(s) banco de dados, a API já vem com o serviços do Google integrado
-    │   ├── database.js
-    │   └── google.js
-    ├── controller // Diretório de controle entre os modelos do banco de dados e as rotas
-    │   ├── fooController.js
-    │   ├── personalAccessTokenController.js
-    │   └── userController.js
-    ├── mail // Diretório de gerenciamento de envio de emails
-    │   ├── manager.js // Arquivo principal com classe de email
-    │   └── template // Diretório de html dos emails enviados
-    │       ├── forgotPassword.html
-    │       └── welcome.html
-    ├── middleware // Diretório de middlewares
-    │   └── auth.js // Middleware de JWT
-    ├── model // Diretório de modelos do banco de dados
-    │   ├── foo.js
-    │   ├── personalAccessToken.js
-    │   └── user.js
-    ├── router // Diretório de rotas, usa os controllers
-    │   ├── fooRouter.js
-    │   ├── personalAcessTokenRouter.js
-    │   ├── userRouter.js
-    │   └── version // Diretório de versão da API para o RESTFULL
-    │       └── version1Router.js
-    └── util // Diretório de utilizavéis
-        └── util.js // Arquivo principal de utilizavéis
+├── corenode.js // Console da aplicação (CLI) para executar scripts e comandos.
+├── index.js // Ponto de entrada da aplicação, onde o servidor é iniciado.
+└── src // Diretório principal que contém todo o código-fonte da aplicação.
+    ├── command // Contém a lógica para os comandos executados pelo `corenode.js`.
+    │   ├── generator // Scripts para gerar código automaticamente.
+    │   │   └── moduleGenerator.js // Gera um novo módulo completo (controller, model, router).
+    │   └── template // Moldes de arquivos usados pelo gerador de código.
+    │       ├── complete // Templates com código de exemplo preenchido.
+    │       │   ├── controllerTemplate.js // Molde para um Controller completo.
+    │       │   ├── modelTemplate.js // Molde para um Model completo.
+    │       │   └── routerTemplate.js // Molde para um Router completo.
+    │       └── empty // Templates com a estrutura mínima (esqueleto).
+    │           ├── controllerTemplate.js // Molde para um Controller vazio.
+    │           ├── modelTemplate.js // Molde para um Model vazio.
+    │           └── routerTemplate.js // Molde para um Router vazio.
+    ├── connection // Gerencia a conexão com serviços externos.
+    │   ├── database.js // Contém a lógica de conexão com o banco de dados principal.
+    │   └── google.js // Contém a lógica de conexão com APIs do Google (ex: Google Auth, Drive).
+    ├── controller // Recebe as requisições HTTP e envia as respostas.
+    │   ├── fooController.js // Controla requisições de um recurso genérico "foo".
+    │   ├── personalAccessTokenController.js // Controla as requisições de tokens de acesso.
+    │   └── userController.js // Controla as requisições relacionadas a usuários.
+    ├── mail // Módulo responsável pelo envio de e-mails.
+    │   ├── manager.js // Orquestra o envio de diferentes tipos de e-mail.
+    │   ├── sender.js // Lida com a comunicação com o serviço de e-mail (ex: SendGrid).
+    │   └── template // Contém os arquivos HTML dos e-mails.
+    │       ├── changeEmail.html // Template para notificação de troca de e-mail.
+    │       ├── forgotPassword.html // Template para recuperação de senha.
+    │       └── welcome.html // Template de e-mail de boas-vindas.
+    ├── middleware // Funções que executam entre a requisição e o controller.
+    │   ├── auth.js // Middleware para verificar a autenticação do usuário.
+    │   └── scope.js // Middleware para verificar as permissões (nível de acesso) do usuário.
+    ├── model // Define a estrutura dos dados e interage com o banco de dados.
+    │   ├── foo.js // Define o schema e os métodos para a entidade "foo".
+    │   ├── personalAccessToken.js // Define o schema para os tokens de acesso pessoal.
+    │   └── user.js // Define o schema e os métodos para os dados de usuários.
+    ├── router // Define as rotas (endpoints) da API.
+    │   ├── fooRouter.js // Define as rotas para o recurso "foo".
+    │   ├── personalAcessTokenRouter.js // Define as rotas para gerenciar tokens.
+    │   ├── userRouter.js // Define as rotas para o recurso de usuários (ex: /users).
+    │   └── version // Diretório para versionamento da API.
+    │       └── version1Router.js // Agrupa todas as rotas da versão 1 (ex: /api/v1).
+    └── util // Contém funções e classes utilitárias reutilizáveis.
+        └── util.js // Arquivo com helpers e funções genéricas.
 ```
 
 ### Fluxo de Requisição:
@@ -471,5 +485,6 @@ Assim que o projeto for iniciado ele vai criar o **banco de dados** automaticame
 - Integrações
 - SOLID
 - camelCase
+
 
 
