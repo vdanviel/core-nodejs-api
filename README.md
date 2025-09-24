@@ -456,28 +456,7 @@ Instale as dependências:
 `npm install`
 
 **Configure o arquivo `.env` na raiz do diretório:**
-
-```env
-#/.env...
-
-DB_USERNAME=
-DB_PASSWORD=
-DB_NAME=
-DB_HOST=
-DB_PORT=
-JWT_SECRET=
-MAIL_HOST=
-MAIL_PORT=
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_FROM_ADDRESS=
-MAIL_FROM_NAME=
-GOOGLE_CLIENT_ID=
-GOOGLE_REDIRECT_URI=
-GOOGLE_CLIENT_SECRET=
-SESSION_SECRET_PASS=
-SPA_APPLICATION_URL=
-```
+Antes de iniciar o framework, não esqueça de configurar o arquivo `.env` com todas as credenciais que pretende usar.
 
 **Inicie o servidor com:**
 `npm run dev`
@@ -492,4 +471,5 @@ Assim que o projeto for iniciado ele vai criar o **banco de dados** automaticame
 - Integrações
 - SOLID
 - camelCase
+
 
