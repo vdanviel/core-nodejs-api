@@ -5,7 +5,7 @@ dotenv.config();
 
 class MailManager {
 
-    constructor(parameters) {
+    constructor() {
       
         this.transport = {
             sendEmail: true,
@@ -46,6 +46,6 @@ class MailManager {
 
 }
 
-const mail = new MailManager();
+const manager = new MailManager();
 
-export {mail};
+export {manager};

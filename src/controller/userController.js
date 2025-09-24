@@ -1,5 +1,5 @@
 import { User } from "../model/user.js";
-import { mail } from "../mail/manager.js";
+import { sender as mailSender } from "../mail/sender.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import fs from "node:fs";
@@ -52,14 +52,14 @@ class Controller {
             status: true
         });
 
-        //ele envia o email de boas vindas só se foi registrado o email, pois em alguns fluxos de cadastro como no Google o user é registrado somente o token para depois registrar os restos dos dados
-        if(email != null){
-            const templateFilePath = path.join(Util.getTemplatePath(import.meta.url), '../mail/template/welcome.html');
-            fs.readFile(templateFilePath, 'utf8', (err, content) => {
-                if (err) throw err;
-                let plainHTML = content.toString().replace("{name}", name ?? "");
-                mail.sendEmail(email, name ?? "", "Bem vindo a Company!", plainHTML);
-            });
+        // Envia email de boas vindas se foi fornecido email
+        if (email) {
+            try {
+                await mailSender.sendUserWelcomeEmail(email, name);
+            } catch (error) {
+                console.error('Erro ao enviar email de boas-vindas:', error);
+                // Não falha a criação do usuário se o email falhar
+            }
         }
 
         // Remover o campo password do objeto retornado
@@ -193,17 +193,15 @@ class Controller {
         //recupera o caminho do template do email html...
         const templateFilePath = path.join(Util.getTemplatePath(import.meta.url), '../mail/template/forgotPassword.html');
 
-        //busca pelo arquivo hmtl
-        fs.readFile(templateFilePath, 'utf8', (err, content) => {
-            if (err) throw err;
-            
-            //pega o html do template de emaisl e muda as variaveis na string...
-            let plainHTML = content.toString().replace("{name}", user.name);
-            plainHTML = plainHTML.toString().replace("{code}", generatedCode);
-
-            //envia email de esqueci senha
-            mail.sendEmail(user.email, user.name, "Redefinição de Senha Company", plainHTML);
-        });
+        // Envia email de recuperação de senha se foi fornecido email
+        if (email) {
+            try {
+                await mailSender.sendPasswordResetEmail(email, user.name, generatedCode);
+            } catch (error) {
+                console.error('Erro ao enviar email de recuperação de senha:', error);
+                // Não falha a criação do usuário se o email falhar
+            }
+        }
 
         return {
             "message": "O código de redefinição de senha foi enviado ao e-mail com sucesso."
@@ -293,12 +291,15 @@ class Controller {
             expiresAt
         );
 
-        const templateFilePath = path.join(Util.getTemplatePath(import.meta.url), '../mail/template/changeEmail.html');
-        fs.readFile(templateFilePath, 'utf8', (err, content) => {
-            if (err) throw err;
-            let plainHTML = content.toString().replaceAll("{name}", user.name).replaceAll("{host}", process.env.SPA_APPLICATION_URL).replaceAll("{email}", newEmail).replaceAll("{code}", generatedCode).replaceAll("{secret}", secretWord);
-            mail.sendEmail(newEmail, user.name, "Confirmação de Mudança de Email, Company", plainHTML);
-        });
+        // Envia email de confirmação de mudança de email se foi fornecido email
+        if (email) {
+            try {
+                await mailSender.sendEmailChangeConfirmation(newEmail, user.name, generatedCode, secretWord);
+            } catch (error) {
+                console.error('Erro ao enviar email de confirmação de mudança de email:', error);
+                // Não falha a criação do usuário se o email falhar
+            }
+        }
 
         return { message: "O código de confirmação foi enviado ao novo e-mail com sucesso." };
     }
