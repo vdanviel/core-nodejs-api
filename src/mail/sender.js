@@ -26,10 +26,10 @@ class MailSender {
                 .replaceAll("{name}", name || "")
                 .replaceAll("{company}", this.appName);
             
-            await mailManager.sendEmail(email, name || "", "Bem vindo a Hermanos!", plainHTML);
-            console.log(`Welcome email sended to: ${email}`);
+            await mailManager.sendEmail(email, name || "", "Bem vindo a " + this.appName + "!", plainHTML);
+            console.log(`Email de boas-vindas enviado para: ${email}`);
         } catch (error) {
-            console.error('Error on sending welcome email:', error);
+            console.error('Erro ao enviar email de boas-vindas:', error);
             throw error;
         }
     }
@@ -47,13 +47,13 @@ class MailSender {
 
             const plainHTML = content.toString().
                 replaceAll("{name}", name).
-                replaceAll("{code}", code).
+                replace("{code}", code).
                 replaceAll("{company}", this.appName);
 
-            await mailManager.sendEmail(email, name, "Redefinição de Senha Hermanos", plainHTML);
-            console.log(`Redefinintion password email sended to: ${email}`);
+            await mailManager.sendEmail(email, name, "Redefinição de Senha " + this.appName + "!", plainHTML);
+            console.log(`Email de redefinição de senha enviado para: ${email}`);
         } catch (error) {
-            console.error('Error on sending redefinintion password email:', error);
+            console.error('Erro ao enviar email de redefinição de senha:', error);
             throw error;
         }
     }
@@ -78,10 +78,10 @@ class MailSender {
                 .replaceAll("{secret}", secretWord)
                 .replaceAll("{company}", this.appName);
             
-            await mailManager.sendEmail(newEmail, name, "Confirmação de Mudança de Email, Hermanos", plainHTML);
-            console.log(`Changing email confirmation email sended to: ${newEmail}`);
+            await mailManager.sendEmail(newEmail, name, "Confirmação de Mudança de Email " + this.appName + "!",plainHTML);
+            console.log(`Email de confirmação de mudança enviado para: ${newEmail}`);
         } catch (error) {
-            console.error('Error on sending change confirmation email:', error);
+            console.error('Erro ao enviar email de confirmação de mudança:', error);
             throw error;
         }
     }
