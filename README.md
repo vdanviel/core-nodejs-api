@@ -1,5 +1,5 @@
 # Documentação do Core Node.js API
-**Visão Geral**
+
 O Core Node.js API é um framework estruturado para desenvolvimento de APIs RESTful em Node.js, com organização clara de diretórios e separação de responsabilidades em MVC.
 Ele já vem com o Google como uma integração configurada e assim que o servidor é iniciado ele cria as tabelas dos *models* (`src/model`) no banco de dados.
 
@@ -485,6 +485,7 @@ Assim que o projeto for iniciado ele vai criar o **banco de dados** automaticame
 - Integrações
 - SOLID
 - camelCase
+
 
 
 
